@@ -1,7 +1,7 @@
 
 import sys
 import csv
-from numpy import array
+import numpy
 
 solution = [1,2,3,4,5,6,7,8,9]
 
@@ -33,38 +33,69 @@ def decompose(puzzle):
     
     return decomposed_puzzle
 
-def check(puzzle):
-    return all(elmement in puzzle for elmement in solution)
+def accept(puzzle_element):
+    return all(elmement in puzzle_element for elmement in solution)
 
 #Check the entire puzzle
-def full_check(puzzle):
+def full_accept(puzzle):
     #Decompose the puzzle into its 27 individual 1-9 elements
     decomposed_puzzle = decompose(puzzle)
     for element in decomposed_puzzle:
         #break out early if we hit an invalid case
-        if not check(element):
+        if not accept(element):
             return False
 
     #puzzle is complete
     return True
 
+def reject(puzzle_element):
+    for test in solution:
+        if list(puzzle_element).count(test) > 1:
+            return True
+    return False
+
+def full_reject(puzzle):
+    for element in decompose(puzzle):
+        if reject(element):
+            return True
+    return False
+
+
+def next(insert_val, puzzle):
+    index = numpy.where(puzzle==0)
+
+    if len(index) == 1:
+        return
+
+    mutated = puzzle
+    row = index[0][0]
+    col =  index[1][0]
+    mutated[ row, col ] = insert_val
+
+    return mutated
+
+def solver(puzzle):
+    if full_reject(puzzle):
+
+        return False
+    if full_accept(puzzle):
+        print(puzzle)
+        return True
+    
+    
+    for i in range(1,10):
+        next_p = next(i, puzzle.copy())
+        solver(next_p)
+
+
 puzzle = []
 
-with open('column.csv', newline='') as f:
+with open('test.csv', newline='') as f:
     reader = csv.reader(f)
     for row in reader:
         temp = [int(i) for i in row]
         puzzle.append(temp)
 
-puzzle = array(puzzle)
+puzzle = numpy.array(puzzle)
 
-
-
-for x in range(1,70000):
-    full_check(puzzle)
-
-if full_check(puzzle):
-    print("true")
-else:
-    print("false")
-
+solver(puzzle)
