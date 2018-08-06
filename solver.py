@@ -3,7 +3,9 @@ import sys
 import csv
 import numpy
 
+
 solution = [1,2,3,4,5,6,7,8,9]
+call_count = 0
 
 def rotate(puzzle):
 
@@ -75,6 +77,11 @@ def next(insert_val, puzzle):
     return mutated
 
 def solver(puzzle):
+    global call_count
+    call_count+=1
+    if call_count % 10000 == 0:
+        print(call_count)
+    
     if full_reject(puzzle):
 
         return False
@@ -87,15 +94,19 @@ def solver(puzzle):
         next_p = next(i, puzzle.copy())
         solver(next_p)
 
-
 puzzle = []
 
-with open('test.csv', newline='') as f:
+with open('hard_test.csv', newline='') as f:
     reader = csv.reader(f)
     for row in reader:
         temp = [int(i) for i in row]
         puzzle.append(temp)
 
+puzzle = rotate(puzzle)
+puzzle = rotate(puzzle)
+
 puzzle = numpy.array(puzzle)
+print(puzzle)
+
 
 solver(puzzle)
